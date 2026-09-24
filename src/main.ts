@@ -10,7 +10,6 @@ let cachedApp: any;
 async function bootstrap() {
   if (!cachedApp) {
     const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
-    app.setGlobalPrefix('api');
     app.enableCors(); // Added CORS to allow requests from the frontend
     app.useGlobalPipes(
       new ValidationPipe({
