@@ -57,6 +57,21 @@ $ pnpm run test:e2e
 $ pnpm run test:cov
 ```
 
+## Admin authentication
+
+The admin API exposes four routes:
+
+- `POST /admin/login`
+- `POST /admin/logout`
+- `POST /admin/password_change`
+- `POST /admin/password_reset`
+
+Login returns a short-lived JWT. Send it as `Authorization: Bearer <token>` to the protected routes. Logout revokes the persisted server-side session.
+
+Password change and reset use two requests on the same route. The first request sends a one-time six-digit code by SMTP email; the second request includes `verificationCode` and `newPassword`. Reset requests intentionally return the same message whether or not the email exists.
+
+Copy `.env.example` to `.env` and configure the JWT and SMTP variables before starting the API. New users default to the `USER` role; promote an account to `ADMIN` through a controlled database migration or administrative procedure before login.
+
 ## Deployment
 
 When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.

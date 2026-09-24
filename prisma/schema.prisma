@@ -12,14 +12,48 @@ datasource db {
   provider = "postgresql"
 }
 
+enum UserRole {
+  ADMIN
+  USER
+}
 
 model User {
-  id        String @id @default(cuid())
-  username  String @unique
-  email     String @unique
-  firstName String 
-  lastName  String 
-  password  String
+  id           String             @id @default(cuid())
+  username     String             @unique
+  email        String             @unique
+  firstName    String
+  lastName     String
+  password     String
+  role         UserRole           @default(USER)
+  sessions     AuthSession[]
+  actionTokens AuthActionToken[]
 
   @@map("users")
+}
+
+model AuthSession {
+  id        String    @id @default(cuid())
+  jti       String    @unique
+  userId    String
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revokedAt])
+  @@map("auth_sessions")
+}
+
+model AuthActionToken {
+  id         String    @id @default(cuid())
+  userId     String
+  purpose    String
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, purpose, expiresAt])
+  @@map("auth_action_tokens")
 }
