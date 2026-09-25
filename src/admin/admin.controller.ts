@@ -11,7 +11,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Throttle } from '@nestjs/throttler';
+import { Throttle } from '../common/throttler/index.js';
 import { AdminOnly } from './admin-only.decorator.js';
 import { AdminService } from './admin.service.js';
 import type { AuthenticatedAdminRequest } from './auth.types.js';

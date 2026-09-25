@@ -7,7 +7,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Throttle } from '@nestjs/throttler';
+import { Throttle } from '../common/throttler/index.js';
 import { RecordPageVisitDto, RecordPostAnalyticsDto } from './analytics.dto.js';
 import { AnalyticsService } from './analytics.service.js';
 

@@ -1,6 +1,6 @@
 import { Controller, Get, Res } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { SkipThrottle } from '@nestjs/throttler';
+import { SkipThrottle } from './common/throttler/index.js';
 import ejs from 'ejs';
 import type { Response } from 'express';
 import { existsSync } from 'node:fs';
