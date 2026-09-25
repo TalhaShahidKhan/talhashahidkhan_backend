@@ -1,10 +1,38 @@
-import { Injectable, ServiceUnavailableException } from '@nestjs/common';
+import {
+  Injectable,
+  type OnModuleInit,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import nodemailer from 'nodemailer';
+import type { Transporter } from 'nodemailer';
 
 @Injectable()
-export class MailService {
+export class MailService implements OnModuleInit {
+  private transporter: Transporter | null = null;
+
   constructor(private readonly config: ConfigService) {}
+
+  onModuleInit() {
+    const host = this.config.get<string>('SMTP_HOST');
+    const port = this.config.get<string>('SMTP_PORT');
+    const username = this.config.get<string>('SMTP_USER');
+    const password = this.config.get<string>('SMTP_PASSWORD');
+
+    if (!host || !port || !username || !password) {
+      return; // SMTP not configured — transporter stays null, sendEmail will throw gracefully
+    }
+
+    const smtpPassword =
+      host === 'smtp.gmail.com' ? password.replace(/\s/g, '') : password;
+
+    this.transporter = nodemailer.createTransport({
+      host,
+      port: Number(port),
+      secure: this.config.get('SMTP_SECURE', 'true') === 'true',
+      auth: { user: username, pass: smtpPassword },
+    });
+  }
 
   async sendVerificationCode(
     recipient: string,
@@ -127,27 +155,16 @@ export class MailService {
     text: string,
     html?: string,
   ): Promise<void> {
-    const host = this.config.get<string>('SMTP_HOST');
-    const port = this.config.get<string>('SMTP_PORT');
-    const username = this.config.get<string>('SMTP_USER');
-    const password = this.config.get<string>('SMTP_PASSWORD');
-    const from = this.config.get<string>('MAIL_FROM');
-
-    if (!host || !port || !username || !password || !from) {
+    if (!this.transporter) {
       throw new ServiceUnavailableException('Email delivery is not configured');
     }
 
-    const smtpPassword =
-      host === 'smtp.gmail.com' ? password.replace(/\s/g, '') : password;
+    const from = this.config.get<string>('MAIL_FROM');
+    if (!from) {
+      throw new ServiceUnavailableException('Email sender is not configured');
+    }
 
-    const transporter = nodemailer.createTransport({
-      host,
-      port: Number(port),
-      secure: this.config.get('SMTP_SECURE', 'true') === 'true',
-      auth: { user: username, pass: smtpPassword },
-    });
-
-    await transporter.sendMail({
+    await this.transporter.sendMail({
       from,
       to: recipient,
       subject,

@@ -11,6 +11,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { AdminOnly } from './admin-only.decorator.js';
 import { AdminService } from './admin.service.js';
 import type { AuthenticatedAdminRequest } from './auth.types.js';
@@ -36,6 +37,7 @@ export class AdminController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 5, ttl: 900000 } }) // 5 attempts per 15 minutes
   @ApiOperation({ summary: 'Log in as an administrator' })
   login(@Body() input: LoginDto) {
     return this.adminService.login(input);
@@ -52,6 +54,7 @@ export class AdminController {
   @Post('password_change')
   @AdminOnly()
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 5, ttl: 1800000 } }) // 5 attempts per 30 minutes
   @ApiOperation({
     summary: 'Request a verification code or change the admin password',
   })
@@ -64,6 +67,7 @@ export class AdminController {
 
   @Post('password_reset')
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 3, ttl: 1800000 } }) // 3 attempts per 30 minutes
   @ApiOperation({
     summary: 'Request a password reset code or reset the admin password',
   })

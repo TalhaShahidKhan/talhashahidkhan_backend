@@ -1,5 +1,6 @@
 import { Controller, Get, Res } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 import ejs from 'ejs';
 import type { Response } from 'express';
 import { join } from 'node:path';
@@ -13,6 +14,7 @@ const templatePath = join(
 );
 
 @Controller()
+@SkipThrottle()
 @ApiTags('Health')
 export class AppController {
   constructor(private readonly prisma: PrismaService) {}

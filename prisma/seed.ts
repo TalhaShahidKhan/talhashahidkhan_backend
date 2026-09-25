@@ -17,8 +17,30 @@ if (!email || !password) {
   );
 }
 
-if (password.length < 8) {
-  throw new Error('ADMIN_PASSWORD must be at least 8 characters long');
+if (password.length < 10) {
+  throw new Error('ADMIN_PASSWORD must be at least 10 characters long');
+}
+
+if (!/[a-z]/.test(password)) {
+  throw new Error(
+    'ADMIN_PASSWORD must contain at least one lowercase letter',
+  );
+}
+
+if (!/[A-Z]/.test(password)) {
+  throw new Error(
+    'ADMIN_PASSWORD must contain at least one uppercase letter',
+  );
+}
+
+if (!/\d/.test(password)) {
+  throw new Error('ADMIN_PASSWORD must contain at least one digit');
+}
+
+if (!/[^a-zA-Z0-9]/.test(password)) {
+  throw new Error(
+    'ADMIN_PASSWORD must contain at least one special character',
+  );
 }
 
 const username = email.split('@')[0];

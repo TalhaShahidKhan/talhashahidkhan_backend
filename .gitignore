@@ -60,3 +60,6 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 /generated/prisma
 /src/generated/prisma
+
+# Postman — may contain tokens or test credentials
+postman_collection.json

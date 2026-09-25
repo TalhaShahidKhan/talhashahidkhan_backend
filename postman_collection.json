@@ -153,6 +153,53 @@
       ]
     },
     {
+      "name": "Public Analytics",
+      "item": [
+        {
+          "name": "POST /analytics/posts/:postId/events",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"VIEW\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/analytics/posts/{{post_id}}/events",
+              "host": ["{{base_url}}"],
+              "path": ["analytics", "posts", "{{post_id}}", "events"]
+            }
+          }
+        },
+        {
+          "name": "POST /analytics/pages/visits",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"route\": \"/about\",\n  \"pageUrl\": \"https://example.com/about\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/analytics/pages/visits",
+              "host": ["{{base_url}}"],
+              "path": ["analytics", "pages", "visits"]
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "Admin Auth",
       "item": [
         {
@@ -241,7 +288,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"{{admin_email}}\",\n  \"verificationCode\": \"123456\",\n  \"newPassword\": \"NewPassword123\"\n}"
+              "raw": "{\n  \"email\": \"{{admin_email}}\",\n  \"verificationCode\": \"123456\",\n  \"newPassword\": \"NewPassword123!\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/admin/password_reset",
@@ -266,7 +313,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"currentPassword\": \"{{admin_password}}\",\n  \"newPassword\": \"NewAdminPassword123\"\n}"
+              "raw": "{\n  \"currentPassword\": \"{{admin_password}}\",\n  \"newPassword\": \"NewAdminPassword123!\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/admin/password_change",
@@ -291,7 +338,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"newPassword\": \"NewAdminPassword123\",\n  \"verificationCode\": \"123456\"\n}"
+              "raw": "{\n  \"newPassword\": \"NewAdminPassword123!\",\n  \"verificationCode\": \"123456\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/admin/password_change",
@@ -855,31 +902,6 @@
           }
         },
         {
-          "name": "POST /admin/analytics/posts/:postId/events",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"event\": \"VIEW\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/admin/analytics/posts/{{post_id}}/events",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "analytics", "posts", "{{post_id}}", "events"]
-            }
-          }
-        },
-        {
           "name": "GET /admin/analytics/pages",
           "request": {
             "method": "GET",
@@ -895,33 +917,9 @@
               "path": ["admin", "analytics", "pages"]
             }
           }
-        },
-        {
-          "name": "POST /admin/analytics/pages/visits",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"route\": \"/about\",\n  \"pageUrl\": \"https://example.com/about\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/admin/analytics/pages/visits",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "analytics", "pages", "visits"]
-            }
-          }
         }
       ]
     }
+
   ]
 }

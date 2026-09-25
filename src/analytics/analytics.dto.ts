@@ -1,4 +1,4 @@
-import { IsEnum, IsString, IsUrl, MinLength } from 'class-validator';
+import { IsEnum, IsString, IsUrl, MaxLength, MinLength } from 'class-validator';
 
 export enum PostAnalyticsEvent {
   VIEW = 'VIEW',
@@ -14,8 +14,10 @@ export class RecordPostAnalyticsDto {
 export class RecordPageVisitDto {
   @IsString()
   @MinLength(1)
+  @MaxLength(500)
   route!: string;
 
   @IsUrl()
+  @MaxLength(2000)
   pageUrl!: string;
 }
