@@ -4,24 +4,42 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="dark" />
-    <title><%= serviceName %> | Health</title>
-    <style>
-      :root {
-        color-scheme: dark;
-        font-family: 'Avenir Next', 'Segoe UI', sans-serif;
-        background: #101313;
-        color: #edf5ee;
-        font-synthesis: none;
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        margin: 0;
-        min-width: 320px;
-        background: #101313;
-      }
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 14px;
+          margin-top: 18px;
+          padding-top: 18px;
+          border-top: 1px solid #29332e;
+        }
+        .docs-check-item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+        }
+        .docs-check-item h2 {
+          margin: 0 0 6px;
+          color: #dbe7dd;
+          font-size: 0.9rem;
+          font-weight: 600;
+        }
+        .docs-check-result {
+          margin: 0;
+          color: #8f9f95;
+          font-size: 0.82rem;
+          line-height: 1.5;
+        }
+        .docs-check-result[data-state='ok'] {
+          color: #c6f06d;
+        }
+        .docs-check-result[data-state='bad'] {
+          color: #ff8b7d;
+        }
+        .docs-check-item a {
+          color: #c6f06d;
+          font-size: 0.84rem;
+          font-weight: 700;
+          white-space: nowrap;
+        }
       .shell {
         width: min(1080px, calc(100% - 40px));
         margin: 0 auto;
@@ -78,7 +96,30 @@
       .intro {
         color: #aebbb1;
         font-size: 1.05rem;
+          .docs-check {
+            grid-template-columns: 1fr;
+          }
         line-height: 1.65;
+        <section class="docs-check" aria-label="API documentation checks">
+          <div class="docs-check-item">
+            <div>
+              <h2>Swagger UI</h2>
+              <p id="docs-ui-result" class="docs-check-result" data-state="">
+                Not checked
+              </p>
+            </div>
+            <a href="/docs" target="_blank" rel="noopener">Open UI</a>
+          </div>
+          <div class="docs-check-item">
+            <div>
+              <h2>OpenAPI JSON</h2>
+              <p id="docs-json-result" class="docs-check-result" data-state="">
+                Not checked
+              </p>
+            </div>
+            <a href="/docs-json" target="_blank" rel="noopener">View JSON</a>
+          </div>
+        </section>
         margin: 0;
       }
       .checks {
@@ -153,6 +194,44 @@
         color: #8f9f95;
         font-size: 0.86rem;
       }
+      .docs-check {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 18px;
+        padding-top: 18px;
+        border-top: 1px solid #29332e;
+      }
+      .docs-check-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+      .docs-check-item h2 {
+        margin: 0 0 6px;
+        color: #dbe7dd;
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+      .docs-check-result {
+        margin: 0;
+        color: #8f9f95;
+        font-size: 0.82rem;
+        line-height: 1.5;
+      }
+      .docs-check-result[data-state='ok'] {
+        color: #c6f06d;
+      }
+      .docs-check-result[data-state='bad'] {
+        color: #ff8b7d;
+      }
+      .docs-check-item a {
+        color: #c6f06d;
+        font-size: 0.84rem;
+        font-weight: 700;
+        white-space: nowrap;
+      }
       button {
         border: 0;
         border-radius: 9px;
@@ -208,6 +287,9 @@
         footer {
           align-items: flex-start;
           flex-direction: column;
+        }
+        .docs-check {
+          grid-template-columns: 1fr;
         }
       }
     </style>
@@ -270,8 +352,30 @@
           ><input id="auto-refresh" type="checkbox" /> Auto-refresh every 30
           seconds</label
         >
+        <button id="check-api-docs" type="button">Check API docs</button>
         <button id="refresh" type="button">Refresh status</button>
       </div>
+
+      <section class="docs-check" aria-label="API documentation checks">
+        <div class="docs-check-item">
+          <div>
+            <h2>Swagger UI</h2>
+            <p id="docs-ui-result" class="docs-check-result" data-state="">
+              Not checked
+            </p>
+          </div>
+          <a href="/docs" target="_blank" rel="noopener">Open UI</a>
+        </div>
+        <div class="docs-check-item">
+          <div>
+            <h2>OpenAPI JSON</h2>
+            <p id="docs-json-result" class="docs-check-result" data-state="">
+              Not checked
+            </p>
+          </div>
+          <a href="/docs-json" target="_blank" rel="noopener">View JSON</a>
+        </div>
+      </section>
 
       <footer>
         <span>Runtime monitor</span><span>HTTP <%= httpStatus %></span>
@@ -280,11 +384,78 @@
     <script>
       const refreshButton = document.querySelector('#refresh');
       const autoRefresh = document.querySelector('#auto-refresh');
+      const checkDocsButton = document.querySelector('#check-api-docs');
+      const docsUiResult = document.querySelector('#docs-ui-result');
+      const docsJsonResult = document.querySelector('#docs-json-result');
       const refresh = () => {
         refreshButton.disabled = true;
         refreshButton.textContent = 'Checking...';
         window.location.reload();
       };
+      const setDocsResult = (element, result) => {
+        element.dataset.state = result.ok ? 'ok' : 'bad';
+        element.textContent = result.message;
+      };
+      const checkSwaggerUI = async () => {
+        try {
+          const response = await fetch('/docs', { cache: 'no-store' });
+          const html = await response.text();
+          const assets = [
+            '/docs/swagger-ui.css',
+            '/docs/swagger-ui-bundle.js',
+            '/docs/swagger-ui-standalone-preset.js',
+            '/docs/swagger-ui-init.js',
+          ];
+          const assetResults = await Promise.all(
+            assets.map(async (path) => {
+              try {
+                const assetResponse = await fetch(path, { cache: 'no-store' });
+                return assetResponse.ok;
+              } catch {
+                return false;
+              }
+            }),
+          );
+          const availableAssets = assetResults.filter(Boolean).length;
+          const ok =
+            response.ok &&
+            response.headers.get('content-type')?.includes('text/html') &&
+            html.includes('swagger-ui') &&
+            availableAssets === assets.length;
+          return {
+            ok,
+            message: `HTTP ${response.status}; UI assets ${availableAssets}/${assets.length} available`,
+          };
+        } catch {
+          return { ok: false, message: 'Request failed' };
+        }
+      };
+      const checkOpenApiJSON = async () => {
+        try {
+          const response = await fetch('/docs-json', { cache: 'no-store' });
+          const document = await response.json();
+          const routeCount = Object.keys(document.paths ?? {}).length;
+          const ok = response.ok && Boolean(document.openapi) && routeCount > 0;
+          return {
+            ok,
+            message: `HTTP ${response.status}; ${routeCount} routes documented`,
+          };
+        } catch {
+          return { ok: false, message: 'Request failed or invalid JSON' };
+        }
+      };
+      checkDocsButton.addEventListener('click', async () => {
+        checkDocsButton.disabled = true;
+        checkDocsButton.textContent = 'Checking...';
+        const [uiResult, jsonResult] = await Promise.all([
+          checkSwaggerUI(),
+          checkOpenApiJSON(),
+        ]);
+        setDocsResult(docsUiResult, uiResult);
+        setDocsResult(docsJsonResult, jsonResult);
+        checkDocsButton.disabled = false;
+        checkDocsButton.textContent = 'Check API docs';
+      });
       refreshButton.addEventListener('click', refresh);
       autoRefresh.addEventListener('change', () => {
         if (autoRefresh.checked)
