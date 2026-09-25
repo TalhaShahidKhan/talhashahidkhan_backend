@@ -816,6 +816,112 @@
           }
         }
       ]
+    },
+    {
+      "name": "Admin Analytics",
+      "item": [
+        {
+          "name": "GET /admin/analytics/posts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/analytics/posts",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "analytics", "posts"]
+            }
+          }
+        },
+        {
+          "name": "GET /admin/analytics/posts/:postId",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/analytics/posts/{{post_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "analytics", "posts", "{{post_id}}"]
+            }
+          }
+        },
+        {
+          "name": "POST /admin/analytics/posts/:postId/events",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"VIEW\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/analytics/posts/{{post_id}}/events",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "analytics", "posts", "{{post_id}}", "events"]
+            }
+          }
+        },
+        {
+          "name": "GET /admin/analytics/pages",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/analytics/pages",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "analytics", "pages"]
+            }
+          }
+        },
+        {
+          "name": "POST /admin/analytics/pages/visits",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"route\": \"/about\",\n  \"pageUrl\": \"https://example.com/about\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/analytics/pages/visits",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "analytics", "pages", "visits"]
+            }
+          }
+        }
+      ]
     }
   ]
 }

@@ -73,19 +73,34 @@ model AuthActionToken {
 }
 
 model Post {
-  id        String            @id @default(cuid())
-  title     String
-  content   String
-  imageUrl  String?
-  slug      String            @unique
-  status    PublicationStatus @default(DRAFT)
-  authorId  String
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
-  author    User              @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  id            String            @id @default(cuid())
+  title         String
+  content       String
+  imageUrl      String?
+  slug          String            @unique
+  status        PublicationStatus @default(DRAFT)
+  authorId      String
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  author        User              @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  postAnalytics PostAnalytics[]
 
   @@index([status])
   @@map("posts")
+}
+
+model PostAnalytics {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  views     Int      @default(0)
+  shares    Int      @default(0)
+  clicks    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([postId])
+  @@map("post_analytics")
 }
 
 model Service {
@@ -180,4 +195,16 @@ model Project {
   updatedAt        DateTime @updatedAt
 
   @@map("projects")
+}
+
+model FrontendPageAnalytics {
+  id         String   @id @default(cuid())
+  route      String
+  pageUrl    String
+  visitCount Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([pageUrl])
+  @@map("frontend_page_analytics")
 }
