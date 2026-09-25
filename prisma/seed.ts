@@ -1,7 +1,7 @@
-import 'dotenv/config';
-import bcrypt from 'bcryptjs';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '../src/generated/prisma/client.js';
+import bcrypt from 'bcryptjs';
+import 'dotenv/config';
+import { PrismaClient } from '../generated/prisma/client.js';
 
 const databaseUrl = process.env.DATABASE_URL;
 const email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
@@ -12,7 +12,9 @@ if (!databaseUrl) {
 }
 
 if (!email || !password) {
-  throw new Error('ADMIN_EMAIL and ADMIN_PASSWORD are required to seed the admin account');
+  throw new Error(
+    'ADMIN_EMAIL and ADMIN_PASSWORD are required to seed the admin account',
+  );
 }
 
 if (password.length < 8) {
@@ -41,7 +43,9 @@ try {
   } else {
     const usernameOwner = await prisma.user.findUnique({ where: { username } });
     if (usernameOwner) {
-      throw new Error(`Username "${username}" is already in use by another account`);
+      throw new Error(
+        `Username "${username}" is already in use by another account`,
+      );
     }
 
     await prisma.user.create({

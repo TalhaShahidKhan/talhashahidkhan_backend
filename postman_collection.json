@@ -1,0 +1,821 @@
+{
+  "info": {
+    "name": "Talha Shahid Khan Backend API",
+    "description": "Postman collection covering the full NestJS API for health checks, admin auth, content management, visitor submissions, and service requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "admin_email",
+      "value": "admin@example.com",
+      "type": "string"
+    },
+    {
+      "key": "admin_password",
+      "value": "Admin@123456",
+      "type": "string"
+    },
+    {
+      "key": "post_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "service_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "service_package_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "project_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "service_request_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET /",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public API",
+      "item": [
+        {
+          "name": "GET /posts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/posts",
+              "host": ["{{base_url}}"],
+              "path": ["posts"]
+            }
+          }
+        },
+        {
+          "name": "GET /services",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/services",
+              "host": ["{{base_url}}"],
+              "path": ["services"]
+            }
+          }
+        },
+        {
+          "name": "GET /projects",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/projects",
+              "host": ["{{base_url}}"],
+              "path": ["projects"]
+            }
+          }
+        },
+        {
+          "name": "POST /contacts",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Doe\",\n  \"email\": \"jane@example.com\",\n  \"whatsapp\": \"+1234567890\",\n  \"message\": \"Hello, I would like to ask a question about your services.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/contacts",
+              "host": ["{{base_url}}"],
+              "path": ["contacts"]
+            }
+          }
+        },
+        {
+          "name": "POST /service-requests",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serviceId\": \"{{service_id}}\",\n  \"packageId\": \"{{service_package_id}}\",\n  \"name\": \"John Smith\",\n  \"email\": \"john@example.com\",\n  \"whatsapp\": \"+1987654321\",\n  \"message\": \"I need a custom website for my business.\",\n  \"additionalRequirements\": [\"Responsive design\", \"Landing page\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/service-requests",
+              "host": ["{{base_url}}"],
+              "path": ["service-requests"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Auth",
+      "item": [
+        {
+          "name": "POST /admin/login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body && body.accessToken) {",
+                  "  pm.collectionVariables.set('admin_token', body.accessToken);",
+                  "}",
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usernameOrEmail\": \"{{admin_email}}\",\n  \"password\": \"{{admin_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/login",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "login"]
+            }
+          }
+        },
+        {
+          "name": "POST /admin/logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/logout",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "logout"]
+            }
+          }
+        },
+        {
+          "name": "POST /admin/password_reset (request code)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{admin_email}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/password_reset",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "password_reset"]
+            }
+          }
+        },
+        {
+          "name": "POST /admin/password_reset (complete reset)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{admin_email}}\",\n  \"verificationCode\": \"123456\",\n  \"newPassword\": \"NewPassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/password_reset",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "password_reset"]
+            }
+          }
+        },
+        {
+          "name": "POST /admin/password_change (request code)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"{{admin_password}}\",\n  \"newPassword\": \"NewAdminPassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/password_change",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "password_change"]
+            }
+          }
+        },
+        {
+          "name": "POST /admin/password_change (complete change)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newPassword\": \"NewAdminPassword123\",\n  \"verificationCode\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/password_change",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "password_change"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Posts",
+      "item": [
+        {
+          "name": "GET /admin/posts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/posts",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "posts"]
+            }
+          }
+        },
+        {
+          "name": "GET /admin/posts/:id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/posts/{{post_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "posts", "{{post_id}}"]
+            }
+          }
+        },
+        {
+          "name": "POST /admin/posts",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"My First Blog Post\",\n  \"content\": \"This is a long article created from the admin panel. It should be published or saved as draft.\",\n  \"imageUrl\": \"https://example.com/post-image.jpg\",\n  \"slug\": \"my-first-blog-post\",\n  \"status\": \"DRAFT\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/posts",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "posts"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /admin/posts/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Blog Post\",\n  \"slug\": \"updated-blog-post\",\n  \"status\": \"PUBLISHED\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/posts/{{post_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "posts", "{{post_id}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /admin/posts/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/posts/{{post_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "posts", "{{post_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Services",
+      "item": [
+        {
+          "name": "GET /admin/services",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/services",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "services"]
+            }
+          }
+        },
+        {
+          "name": "GET /admin/services/:id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/services/{{service_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "services", "{{service_id}}"]
+            }
+          }
+        },
+        {
+          "name": "POST /admin/services",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Custom Website Development\",\n  \"slug\": \"custom-website-development\",\n  \"description\": \"We build custom business websites with responsive design, premium UX, and conversion-focused layouts.\",\n  \"category\": \"Web Development\",\n  \"tags\": [\"website\", \"business\", \"custom\"],\n  \"price\": 1200,\n  \"deliveryDays\": 14,\n  \"revisions\": 3,\n  \"features\": [\"Responsive design\", \"SEO setup\", \"CMS integration\"],\n  \"status\": \"DRAFT\",\n  \"isFeatured\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/services",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "services"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /admin/services/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Custom Website Development Pro\",\n  \"status\": \"PUBLISHED\",\n  \"isFeatured\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/services/{{service_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "services", "{{service_id}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /admin/services/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/services/{{service_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "services", "{{service_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Service Packages",
+      "item": [
+        {
+          "name": "GET /admin/service-packages",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/service-packages",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "service-packages"]
+            }
+          }
+        },
+        {
+          "name": "GET /admin/service-packages/:id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/service-packages/{{service_package_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "service-packages", "{{service_package_id}}"]
+            }
+          }
+        },
+        {
+          "name": "POST /admin/service-packages",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serviceId\": \"{{service_id}}\",\n  \"name\": \"Starter Package\",\n  \"description\": \"Perfect for small businesses that need a professional website quickly.\",\n  \"price\": 799,\n  \"deliveryDays\": 10,\n  \"revisions\": 2,\n  \"features\": [\"Landing page\", \"Contact form\", \"Basic branding\"],\n  \"status\": \"DRAFT\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/service-packages",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "service-packages"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /admin/service-packages/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Starter Package Plus\",\n  \"status\": \"PUBLISHED\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/service-packages/{{service_package_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "service-packages", "{{service_package_id}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /admin/service-packages/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/service-packages/{{service_package_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "service-packages", "{{service_package_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Projects",
+      "item": [
+        {
+          "name": "GET /admin/projects",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/projects",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "projects"]
+            }
+          }
+        },
+        {
+          "name": "GET /admin/projects/:id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/projects/{{project_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "projects", "{{project_id}}"]
+            }
+          }
+        },
+        {
+          "name": "POST /admin/projects",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Brand Refresh Project\",\n  \"description\": \"A complete website redesign and positioning refresh for a modern local business.\",\n  \"images\": [\"https://example.com/project-1.jpg\", \"https://example.com/project-2.jpg\"],\n  \"liveLink\": \"https://example.com/project-live\",\n  \"githubRepository\": \"https://github.com/example/project\",\n  \"tags\": [\"brand\", \"web\", \"design\"],\n  \"techStack\": [\"Next.js\", \"TypeScript\", \"PostgreSQL\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/projects",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "projects"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /admin/projects/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Brand Refresh Project v2\",\n  \"tags\": [\"brand\", \"web\", \"design\", \"ecommerce\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/projects/{{project_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "projects", "{{project_id}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /admin/projects/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/projects/{{project_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "projects", "{{project_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Service Requests",
+      "item": [
+        {
+          "name": "GET /admin/service-requests",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/service-requests",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "service-requests"]
+            }
+          }
+        },
+        {
+          "name": "GET /admin/service-requests/:id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/service-requests/{{service_request_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "service-requests", "{{service_request_id}}"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /admin/service-requests/:id/status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"CONTACTED\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/service-requests/{{service_request_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": [
+                "admin",
+                "service-requests",
+                "{{service_request_id}}",
+                "status"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Contacts",
+      "item": [
+        {
+          "name": "GET /admin/contacts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/contacts",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "contacts"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

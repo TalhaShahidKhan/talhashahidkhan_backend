@@ -1,15 +1,29 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcryptjs';
 import { createHash, randomInt, randomUUID } from 'node:crypto';
+import { Prisma } from '../../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { AdminTokenPayload } from './auth.types.js';
+import {
+  CreatePostDto,
+  CreateProjectDto,
+  CreateServiceDto,
+  CreateServicePackageDto,
+  UpdatePostDto,
+  UpdateProjectDto,
+  UpdateServiceDto,
+  UpdateServicePackageDto,
+  UpdateServiceRequestStatusDto,
+} from './dto/content.dto.js';
 import type { LoginDto } from './dto/login.dto.js';
 import type { PasswordChangeDto } from './dto/password-change.dto.js';
 import type { PasswordResetDto } from './dto/password-reset.dto.js';
@@ -141,6 +155,318 @@ export class AdminService {
     return { message: 'Password reset successfully. Please log in again.' };
   }
 
+  async findAllPosts() {
+    return this.prisma.post.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async findPostById(id: string) {
+    const post = await this.prisma.post.findUnique({ where: { id } });
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+    return post;
+  }
+
+  async createPost(input: CreatePostDto, authorId?: string) {
+    if (!authorId) {
+      throw new UnauthorizedException('Admin user context is required');
+    }
+
+    try {
+      return await this.prisma.post.create({
+        data: {
+          title: input.title,
+          content: input.content,
+          imageUrl: input.imageUrl,
+          slug: input.slug,
+          authorId,
+          status: input.status ?? 'DRAFT',
+        },
+      });
+    } catch (error) {
+      this.handlePrismaError(error, 'Post');
+    }
+  }
+
+  async updatePost(id: string, input: UpdatePostDto) {
+    await this.findPostById(id);
+
+    try {
+      return await this.prisma.post.update({
+        where: { id },
+        data: {
+          ...input,
+          status: input.status ?? undefined,
+        },
+      });
+    } catch (error) {
+      this.handlePrismaError(error, 'Post');
+    }
+  }
+
+  async deletePost(id: string): Promise<void> {
+    await this.findPostById(id);
+
+    try {
+      await this.prisma.post.delete({ where: { id } });
+    } catch (error) {
+      this.handlePrismaError(error, 'Post');
+    }
+  }
+
+  async findAllServices() {
+    return this.prisma.service.findMany({
+      include: { servicePackages: true },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async findServiceById(id: string) {
+    const service = await this.prisma.service.findUnique({
+      where: { id },
+      include: { servicePackages: true },
+    });
+
+    if (!service) {
+      throw new NotFoundException('Service not found');
+    }
+
+    return service;
+  }
+
+  async createService(input: CreateServiceDto) {
+    try {
+      return await this.prisma.service.create({
+        data: {
+          title: input.title,
+          slug: input.slug,
+          description: input.description,
+          category: input.category,
+          tags: input.tags,
+          price: input.price,
+          deliveryDays: input.deliveryDays,
+          revisions: input.revisions,
+          features: input.features,
+          status: input.status ?? 'DRAFT',
+          isFeatured: input.isFeatured ?? false,
+        },
+      });
+    } catch (error) {
+      this.handlePrismaError(error, 'Service');
+    }
+  }
+
+  async updateService(id: string, input: UpdateServiceDto) {
+    await this.findServiceById(id);
+
+    try {
+      return await this.prisma.service.update({
+        where: { id },
+        data: {
+          ...input,
+          status: input.status ?? undefined,
+          isFeatured: input.isFeatured ?? undefined,
+        },
+      });
+    } catch (error) {
+      this.handlePrismaError(error, 'Service');
+    }
+  }
+
+  async deleteService(id: string): Promise<void> {
+    await this.findServiceById(id);
+
+    try {
+      await this.prisma.service.delete({ where: { id } });
+    } catch (error) {
+      this.handlePrismaError(error, 'Service');
+    }
+  }
+
+  async findAllServicePackages() {
+    return this.prisma.servicePackage.findMany({
+      include: { service: true },
+      orderBy: { serviceId: 'asc' },
+    });
+  }
+
+  async findServicePackageById(id: string) {
+    const packageItem = await this.prisma.servicePackage.findUnique({
+      where: { id },
+      include: { service: true },
+    });
+
+    if (!packageItem) {
+      throw new NotFoundException('Service package not found');
+    }
+
+    return packageItem;
+  }
+
+  async createServicePackage(input: CreateServicePackageDto) {
+    const service = await this.prisma.service.findUnique({
+      where: { id: input.serviceId },
+    });
+
+    if (!service) {
+      throw new NotFoundException('Service not found');
+    }
+
+    try {
+      return await this.prisma.servicePackage.create({
+        data: {
+          serviceId: input.serviceId,
+          name: input.name,
+          description: input.description,
+          price: input.price,
+          deliveryDays: input.deliveryDays,
+          revisions: input.revisions,
+          features: input.features,
+          status: input.status ?? 'DRAFT',
+        },
+      });
+    } catch (error) {
+      this.handlePrismaError(error, 'Service package');
+    }
+  }
+
+  async updateServicePackage(id: string, input: UpdateServicePackageDto) {
+    await this.findServicePackageById(id);
+
+    if (input.serviceId) {
+      const service = await this.prisma.service.findUnique({
+        where: { id: input.serviceId },
+      });
+
+      if (!service) {
+        throw new NotFoundException('Service not found');
+      }
+    }
+
+    try {
+      return await this.prisma.servicePackage.update({
+        where: { id },
+        data: {
+          ...input,
+          status: input.status ?? undefined,
+        },
+      });
+    } catch (error) {
+      this.handlePrismaError(error, 'Service package');
+    }
+  }
+
+  async deleteServicePackage(id: string): Promise<void> {
+    await this.findServicePackageById(id);
+
+    try {
+      await this.prisma.servicePackage.delete({ where: { id } });
+    } catch (error) {
+      this.handlePrismaError(error, 'Service package');
+    }
+  }
+
+  async findAllProjects() {
+    return this.prisma.project.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async findProjectById(id: string) {
+    const project = await this.prisma.project.findUnique({ where: { id } });
+    if (!project) {
+      throw new NotFoundException('Project not found');
+    }
+    return project;
+  }
+
+  async createProject(input: CreateProjectDto) {
+    try {
+      return await this.prisma.project.create({
+        data: {
+          name: input.name,
+          description: input.description,
+          images: input.images,
+          liveLink: input.liveLink,
+          githubRepository: input.githubRepository,
+          tags: input.tags,
+          techStack: input.techStack,
+        },
+      });
+    } catch (error) {
+      this.handlePrismaError(error, 'Project');
+    }
+  }
+
+  async updateProject(id: string, input: UpdateProjectDto) {
+    await this.findProjectById(id);
+
+    try {
+      return await this.prisma.project.update({
+        where: { id },
+        data: {
+          ...input,
+        },
+      });
+    } catch (error) {
+      this.handlePrismaError(error, 'Project');
+    }
+  }
+
+  async deleteProject(id: string): Promise<void> {
+    await this.findProjectById(id);
+
+    try {
+      await this.prisma.project.delete({ where: { id } });
+    } catch (error) {
+      this.handlePrismaError(error, 'Project');
+    }
+  }
+
+  async findAllServiceRequests() {
+    return this.prisma.serviceRequest.findMany({
+      include: { service: true, package: true },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async findServiceRequestById(id: string) {
+    const serviceRequest = await this.prisma.serviceRequest.findUnique({
+      where: { id },
+      include: { service: true, package: true },
+    });
+
+    if (!serviceRequest) {
+      throw new NotFoundException('Service request not found');
+    }
+
+    return serviceRequest;
+  }
+
+  async updateServiceRequestStatus(
+    id: string,
+    input: UpdateServiceRequestStatusDto,
+  ) {
+    await this.findServiceRequestById(id);
+
+    try {
+      return await this.prisma.serviceRequest.update({
+        where: { id },
+        data: { status: input.status },
+      });
+    } catch (error) {
+      this.handlePrismaError(error, 'Service request');
+    }
+  }
+
+  async findAllContacts() {
+    return this.prisma.contact.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   private async sendActionCode(
     userId: string,
     email: string,
@@ -208,6 +534,28 @@ export class AdminService {
         data: { revokedAt: new Date() },
       }),
     ]);
+  }
+
+  private handlePrismaError(error: unknown, resource: string): never {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (error.code) {
+        case 'P2002':
+          throw new ConflictException(`${resource} already exists`);
+        case 'P2003':
+        case 'P2014':
+          throw new BadRequestException(
+            `Invalid ${resource.toLowerCase()} reference`,
+          );
+        case 'P2025':
+          throw new NotFoundException(`${resource} not found`);
+        default:
+          throw new InternalServerErrorException(
+            `Unable to process ${resource.toLowerCase()}`,
+          );
+      }
+    }
+
+    throw error;
   }
 
   private hashToken(userId: string, purpose: string, value: string): string {
