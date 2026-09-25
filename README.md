@@ -31,6 +31,20 @@
 $ pnpm install
 ```
 
+## API Documentation
+
+Configure the required environment variables in `.env`, including `DATABASE_URL`, then start the API:
+
+```bash
+pnpm start:dev
+```
+
+Open the interactive Swagger UI at [http://localhost:3000/docs](http://localhost:3000/docs). The raw OpenAPI 3 JSON document is available at [http://localhost:3000/docs-json](http://localhost:3000/docs-json). If the API uses a different host or `PORT`, use that host and port instead.
+
+In Swagger UI, expand an endpoint and select **Try it out** to edit parameters or request bodies and send a request. Public routes can be called directly. For admin routes, first call `POST /admin/login` with `usernameOrEmail` and `password`, copy the returned `accessToken`, select **Authorize**, and enter the token. Swagger UI adds the `Bearer` prefix automatically. Admin routes then use that token; call `POST /admin/logout` to revoke its session.
+
+Request schemas are generated from the DTO validation rules. The API rejects unknown body properties and invalid values, so the request must match the documented schema.
+
 ## Compile and run the project
 
 ```bash

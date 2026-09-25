@@ -1,4 +1,5 @@
 import { Controller, Get, Res } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import ejs from 'ejs';
 import type { Response } from 'express';
 import { join } from 'node:path';
@@ -12,10 +13,12 @@ const templatePath = join(
 );
 
 @Controller()
+@ApiTags('Health')
 export class AppController {
   constructor(private readonly prisma: PrismaService) {}
 
   @Get()
+  @ApiOperation({ summary: 'Check API and database health' })
   async getHealth(@Res() response: Response): Promise<void> {
     const startedAt = performance.now();
     let databaseStatus = 'Unavailable';
