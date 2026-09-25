@@ -5,7 +5,14 @@
       "src": "src/main.ts",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": "node_modules/.pnpm/swagger-ui-dist@*/node_modules/swagger-ui-dist/**/*"
+        "maxDuration": 30,
+        "includeFiles": [
+          "src/views/**/*",
+          "views/**/*",
+          "prisma/**/*",
+          "generated/**/*",
+          "node_modules/.pnpm/swagger-ui-dist@*/node_modules/swagger-ui-dist/**/*"
+        ]
       }
     }
   ],
@@ -16,3 +23,4 @@
     }
   ]
 }
+

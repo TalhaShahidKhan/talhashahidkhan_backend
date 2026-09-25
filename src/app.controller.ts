@@ -3,15 +3,20 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
 import ejs from 'ejs';
 import type { Response } from 'express';
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PrismaService } from './prisma/prisma.service.js';
 
-const templatePath = join(
-  fileURLToPath(new URL('.', import.meta.url)),
-  'views',
-  'health.ejs',
-);
+function resolveTemplatePath(): string | null {
+  const candidates = [
+    join(fileURLToPath(new URL('.', import.meta.url)), 'views', 'health.ejs'),
+    join(process.cwd(), 'src', 'views', 'health.ejs'),
+    join(process.cwd(), 'dist', 'src', 'views', 'health.ejs'),
+    join(process.cwd(), 'views', 'health.ejs'),
+  ];
+  return candidates.find((candidate) => existsSync(candidate)) ?? null;
+}
 
 @Controller()
 @SkipThrottle()
@@ -38,7 +43,9 @@ export class AppController {
     const overallStatus =
       databaseStatus === 'Connected' ? 'healthy' : 'degraded';
     const httpStatus = overallStatus === 'healthy' ? 200 : 503;
-    const html = await ejs.renderFile(templatePath, {
+    const templatePath = resolveTemplatePath();
+
+    const payload = {
       apiStatus: 'Operational',
       databaseStatus,
       databaseMessage,
@@ -48,8 +55,23 @@ export class AppController {
       serviceName: 'Talha Shahid Khan API',
       environment: process.env.NODE_ENV ?? 'production',
       checkedAt: new Date().toLocaleString(),
-    });
+    };
 
-    response.status(httpStatus).send(html);
+    if (templatePath) {
+      try {
+        const html = await ejs.renderFile(templatePath, payload);
+        response.status(httpStatus).send(html);
+        return;
+      } catch (renderError) {
+        console.error('Failed to render health template:', renderError);
+      }
+    }
+
+    // Fallback to JSON if template is missing or fails to render
+    response.status(httpStatus).json({
+      ...payload,
+      checkedAt: new Date().toISOString(),
+    });
   }
 }
+
