@@ -7,6 +7,7 @@ import { AppController } from './app.controller.js';
 import { ThrottlerGuard } from './common/throttler/index.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { PublicModule } from './public/public.module.js';
+import { CloudinaryModule } from './cloudinary/cloudinary.module.js';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { PublicModule } from './public/public.module.js';
     AnalyticsModule,
     AdminModule,
     PublicModule,
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
