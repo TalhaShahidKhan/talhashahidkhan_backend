@@ -16,4 +16,26 @@ export class CloudinaryService {
       streamifier.createReadStream(file.buffer).pipe(uploadStream);
     });
   }
+
+  async deleteFileFromUrl(url: string): Promise<void> {
+    try {
+      const parts = url.split('/upload/');
+      if (parts.length !== 2) return;
+      
+      let publicIdWithExtension = parts[1];
+      if (publicIdWithExtension.match(/^v\d+\//)) {
+        publicIdWithExtension = publicIdWithExtension.replace(/^v\d+\//, '');
+      }
+      const publicId = publicIdWithExtension.replace(/\.[^/.]+$/, '');
+      
+      await new Promise((resolve, reject) => {
+        cloudinary.uploader.destroy(publicId, (error, result) => {
+          if (error) return reject(error);
+          resolve(result);
+        });
+      });
+    } catch (error) {
+      console.error(`Failed to delete Cloudinary asset for URL ${url}:`, error);
+    }
+  }
 }

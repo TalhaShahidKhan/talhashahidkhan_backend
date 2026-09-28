@@ -5,6 +5,8 @@ import {
   InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
+  forwardRef,
+  Inject,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -30,6 +32,7 @@ import type { LoginDto } from './dto/login.dto.js';
 import type { PasswordChangeDto } from './dto/password-change.dto.js';
 import type { PasswordResetDto } from './dto/password-reset.dto.js';
 import { MailService } from './mail.service.js';
+import { CloudinaryService } from '../cloudinary/cloudinary.service.js';
 
 @Injectable()
 export class AdminService {
@@ -40,6 +43,8 @@ export class AdminService {
     private readonly jwt: JwtService,
     private readonly config: ConfigService,
     private readonly mail: MailService,
+    @Inject(forwardRef(() => CloudinaryService))
+    private readonly cloudinary: CloudinaryService,
   ) {}
 
   async login(input: LoginDto) {
@@ -193,26 +198,33 @@ export class AdminService {
   }
 
   async updatePost(id: string, input: UpdatePostDto) {
-    await this.findPostById(id);
+    const post = await this.findPostById(id);
 
     try {
-      return await this.prisma.post.update({
+      const updated = await this.prisma.post.update({
         where: { id },
         data: {
           ...input,
           status: input.status ?? undefined,
         },
       });
+      if (input.imageUrl !== undefined && post.imageUrl && input.imageUrl !== post.imageUrl) {
+        this.cloudinary.deleteFileFromUrl(post.imageUrl).catch(() => {});
+      }
+      return updated;
     } catch (error) {
       this.handlePrismaError(error, 'Post');
     }
   }
 
   async deletePost(id: string): Promise<void> {
-    await this.findPostById(id);
+    const post = await this.findPostById(id);
 
     try {
       await this.prisma.post.delete({ where: { id } });
+      if (post.imageUrl) {
+        this.cloudinary.deleteFileFromUrl(post.imageUrl).catch(() => {});
+      }
     } catch (error) {
       this.handlePrismaError(error, 'Post');
     }
@@ -378,25 +390,35 @@ export class AdminService {
   }
 
   async updateProject(id: string, input: UpdateProjectDto) {
-    await this.findProjectById(id);
+    const project = await this.findProjectById(id);
 
     try {
-      return await this.prisma.project.update({
+      const updated = await this.prisma.project.update({
         where: { id },
         data: {
           ...input,
         },
       });
+      if (input.images !== undefined && project.images) {
+        const removedImages = project.images.filter(url => !input.images!.includes(url));
+        if (removedImages.length > 0) {
+          Promise.all(removedImages.map(url => this.cloudinary.deleteFileFromUrl(url))).catch(() => {});
+        }
+      }
+      return updated;
     } catch (error) {
       this.handlePrismaError(error, 'Project');
     }
   }
 
   async deleteProject(id: string): Promise<void> {
-    await this.findProjectById(id);
+    const project = await this.findProjectById(id);
 
     try {
       await this.prisma.project.delete({ where: { id } });
+      if (project.images && project.images.length > 0) {
+        Promise.all(project.images.map(url => this.cloudinary.deleteFileFromUrl(url))).catch(() => {});
+      }
     } catch (error) {
       this.handlePrismaError(error, 'Project');
     }
