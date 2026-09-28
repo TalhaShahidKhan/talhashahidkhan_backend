@@ -290,6 +290,11 @@ export class CreateProjectDto {
   name!: string;
 
   @IsString()
+  @MinLength(2)
+  @MaxLength(200)
+  slug!: string;
+
+  @IsString()
   @MinLength(20)
   @MaxLength(10000)
   description!: string;
@@ -326,6 +331,12 @@ export class UpdateProjectDto {
   @MinLength(2)
   @MaxLength(200)
   name?: string;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(2)
+  @MaxLength(200)
+  slug?: string;
 
   @IsOptional()
   @IsString()

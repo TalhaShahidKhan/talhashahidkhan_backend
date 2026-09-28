@@ -376,6 +376,7 @@ export class AdminService {
       return await this.prisma.project.create({
         data: {
           name: input.name,
+          slug: input.slug,
           description: input.description,
           images: input.images,
           liveLink: input.liveLink,

@@ -48,6 +48,16 @@ export class PublicService {
     });
   }
 
+  async getProjectBySlug(slug: string) {
+    const project = await this.prisma.project.findUnique({
+      where: { slug }
+    });
+    if (!project) {
+      throw new NotFoundException('Project not found');
+    }
+    return project;
+  }
+
   async listExperiences() {
     return this.prisma.experience.findMany({
       orderBy: { startDate: 'desc' },

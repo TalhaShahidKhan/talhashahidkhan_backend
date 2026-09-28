@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Param,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateContactDto, CreateServiceRequestDto, CreateServicePackageRequestDto } from './dto/public.dto.js';
@@ -37,6 +38,12 @@ export class PublicController {
   @ApiOperation({ summary: 'List portfolio projects' })
   async getProjects() {
     return this.publicService.listProjects();
+  }
+
+  @Get('projects/:slug')
+  @ApiOperation({ summary: 'Get project by slug' })
+  async getProjectBySlug(@Param('slug') slug: string) {
+    return this.publicService.getProjectBySlug(slug);
   }
 
   @Get('experiences')
