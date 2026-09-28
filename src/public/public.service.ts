@@ -4,6 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { PublicationStatus } from '../../generated/prisma/client.js';
 import { MailService } from '../admin/mail.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type {
@@ -22,7 +23,7 @@ export class PublicService {
 
   async listPublishedPosts() {
     return this.prisma.post.findMany({
-      where: { status: 'PUBLISHED' },
+      where: { status: PublicationStatus.PUBLISHED },
       orderBy: { createdAt: 'desc' },
     });
   }
