@@ -35,10 +35,36 @@ export class CreateServiceRequestDto {
   @MaxLength(100)
   serviceId!: string;
 
+  @IsString()
+  @MinLength(2)
+  @MaxLength(100)
+  name!: string;
+
+  @IsEmail()
+  @MaxLength(254)
+  email!: string;
+
   @IsOptional()
   @IsString()
+  @MaxLength(20)
+  whatsapp?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(5000)
+  message?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  @MaxLength(500, { each: true })
+  additionalRequirements?: string[];
+}
+
+export class CreateServicePackageRequestDto {
+  @IsString()
   @MaxLength(100)
-  packageId?: string;
+  packageId!: string;
 
   @IsString()
   @MinLength(2)

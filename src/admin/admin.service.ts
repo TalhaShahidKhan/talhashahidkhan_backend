@@ -220,7 +220,6 @@ export class AdminService {
 
   async findAllServices() {
     return this.prisma.service.findMany({
-      include: { servicePackages: true },
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -228,7 +227,6 @@ export class AdminService {
   async findServiceById(id: string) {
     const service = await this.prisma.service.findUnique({
       where: { id },
-      include: { servicePackages: true },
     });
 
     if (!service) {
@@ -288,16 +286,12 @@ export class AdminService {
   }
 
   async findAllServicePackages() {
-    return this.prisma.servicePackage.findMany({
-      include: { service: true },
-      orderBy: { serviceId: 'asc' },
-    });
+    return this.prisma.servicePackage.findMany();
   }
 
   async findServicePackageById(id: string) {
     const packageItem = await this.prisma.servicePackage.findUnique({
       where: { id },
-      include: { service: true },
     });
 
     if (!packageItem) {
@@ -308,18 +302,9 @@ export class AdminService {
   }
 
   async createServicePackage(input: CreateServicePackageDto) {
-    const service = await this.prisma.service.findUnique({
-      where: { id: input.serviceId },
-    });
-
-    if (!service) {
-      throw new NotFoundException('Service not found');
-    }
-
     try {
       return await this.prisma.servicePackage.create({
         data: {
-          serviceId: input.serviceId,
           name: input.name,
           description: input.description,
           price: input.price,
@@ -336,16 +321,6 @@ export class AdminService {
 
   async updateServicePackage(id: string, input: UpdateServicePackageDto) {
     await this.findServicePackageById(id);
-
-    if (input.serviceId) {
-      const service = await this.prisma.service.findUnique({
-        where: { id: input.serviceId },
-      });
-
-      if (!service) {
-        throw new NotFoundException('Service not found');
-      }
-    }
 
     try {
       return await this.prisma.servicePackage.update({
@@ -480,7 +455,7 @@ export class AdminService {
 
   async findAllServiceRequests() {
     return this.prisma.serviceRequest.findMany({
-      include: { service: true, package: true },
+      include: { service: true },
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -488,7 +463,7 @@ export class AdminService {
   async findServiceRequestById(id: string) {
     const serviceRequest = await this.prisma.serviceRequest.findUnique({
       where: { id },
-      include: { service: true, package: true },
+      include: { service: true },
     });
 
     if (!serviceRequest) {
@@ -511,6 +486,42 @@ export class AdminService {
       });
     } catch (error) {
       this.handlePrismaError(error, 'Service request');
+    }
+  }
+
+  async findAllServicePackageRequests() {
+    return this.prisma.servicePackageRequest.findMany({
+      include: { package: true },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async findServicePackageRequestById(id: string) {
+    const request = await this.prisma.servicePackageRequest.findUnique({
+      where: { id },
+      include: { package: true },
+    });
+
+    if (!request) {
+      throw new NotFoundException('Service package request not found');
+    }
+
+    return request;
+  }
+
+  async updateServicePackageRequestStatus(
+    id: string,
+    input: UpdateServiceRequestStatusDto,
+  ) {
+    await this.findServicePackageRequestById(id);
+
+    try {
+      return await this.prisma.servicePackageRequest.update({
+        where: { id },
+        data: { status: input.status },
+      });
+    } catch (error) {
+      this.handlePrismaError(error, 'Service package request');
     }
   }
 

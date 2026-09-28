@@ -10,6 +10,7 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import type {
   CreateContactDto,
   CreateServiceRequestDto,
+  CreateServicePackageRequestDto,
 } from './dto/public.dto.js';
 
 @Injectable()
@@ -31,8 +32,13 @@ export class PublicService {
   async listPublishedServices() {
     return this.prisma.service.findMany({
       where: { status: 'PUBLISHED' },
-      include: { servicePackages: true },
       orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async listPublishedServicePackages() {
+    return this.prisma.servicePackage.findMany({
+      where: { status: 'PUBLISHED' },
     });
   }
 
@@ -83,30 +89,9 @@ export class PublicService {
       throw new NotFoundException('Service not found');
     }
 
-    const packageRecord = input.packageId
-      ? await this.prisma.servicePackage.findFirst({
-          where: { id: input.packageId, serviceId: input.serviceId },
-          select: {
-            name: true,
-            description: true,
-            price: true,
-            deliveryDays: true,
-            revisions: true,
-            features: true,
-          },
-        })
-      : null;
-
-    if (input.packageId && !packageRecord) {
-      throw new BadRequestException(
-        'The selected package does not belong to this service',
-      );
-    }
-
     const serviceRequest = await this.prisma.serviceRequest.create({
       data: {
         serviceId: input.serviceId,
-        packageId: input.packageId,
         name: input.name,
         email: input.email,
         whatsapp: input.whatsapp,
@@ -127,17 +112,58 @@ export class PublicService {
           revisions: service.revisions,
           features: service.features,
         },
-        package: packageRecord
-          ? {
-              ...packageRecord,
-              price: packageRecord.price.toString(),
-            }
-          : undefined,
         message: serviceRequest.message ?? undefined,
         additionalRequirements: serviceRequest.additionalRequirements,
       }),
     );
     return serviceRequest;
+  }
+
+  async createServicePackageRequest(input: CreateServicePackageRequestDto) {
+    const packageRecord = await this.prisma.servicePackage.findUnique({
+      where: { id: input.packageId },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        price: true,
+        deliveryDays: true,
+        revisions: true,
+        features: true,
+      },
+    });
+
+    if (!packageRecord) {
+      throw new NotFoundException('Service package not found');
+    }
+
+    const packageRequest = await this.prisma.servicePackageRequest.create({
+      data: {
+        packageId: input.packageId,
+        name: input.name,
+        email: input.email,
+        whatsapp: input.whatsapp,
+        message: input.message,
+        additionalRequirements: input.additionalRequirements ?? [],
+      },
+    });
+
+    await this.sendConfirmationEmail('service package request', () =>
+      this.mail.sendServicePackageRequestConfirmation(packageRequest.email, {
+        name: packageRequest.name,
+        package: {
+          name: packageRecord.name,
+          description: packageRecord.description,
+          price: packageRecord.price.toString(),
+          deliveryDays: packageRecord.deliveryDays,
+          revisions: packageRecord.revisions,
+          features: packageRecord.features,
+        },
+        message: packageRequest.message ?? undefined,
+        additionalRequirements: packageRequest.additionalRequirements,
+      }),
+    );
+    return packageRequest;
   }
 
   private async sendConfirmationEmail(

@@ -255,6 +255,30 @@ export class AdminController {
     return this.adminService.updateServiceRequestStatus(id, input);
   }
 
+  @Get('service-package-requests')
+  @AdminOnly()
+  @ApiOperation({ summary: 'List service package requests' })
+  findAllServicePackageRequests() {
+    return this.adminService.findAllServicePackageRequests();
+  }
+
+  @Get('service-package-requests/:id')
+  @AdminOnly()
+  @ApiOperation({ summary: 'Get a service package request by ID' })
+  findServicePackageRequestById(@Param('id') id: string) {
+    return this.adminService.findServicePackageRequestById(id);
+  }
+
+  @Patch('service-package-requests/:id/status')
+  @AdminOnly()
+  @ApiOperation({ summary: 'Update a service package request status' })
+  updateServicePackageRequestStatus(
+    @Param('id') id: string,
+    @Body() input: UpdateServiceRequestStatusDto,
+  ) {
+    return this.adminService.updateServicePackageRequestStatus(id, input);
+  }
+
   @Get('contacts')
   @AdminOnly()
   @ApiOperation({ summary: 'List contact submissions' })

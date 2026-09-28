@@ -202,10 +202,6 @@ export class UpdateServiceDto {
 
 export class CreateServicePackageDto {
   @IsString()
-  @MaxLength(100)
-  serviceId!: string;
-
-  @IsString()
   @MinLength(2)
   @MaxLength(200)
   name!: string;
@@ -244,11 +240,6 @@ export class CreateServicePackageDto {
 }
 
 export class UpdateServicePackageDto {
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
-  serviceId?: string;
-
   @IsOptional()
   @IsString()
   @MinLength(2)
