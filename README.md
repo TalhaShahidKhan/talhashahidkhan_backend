@@ -23,6 +23,7 @@ Public endpoints:
 | `GET`  | `/posts`            | List published posts                       |
 | `GET`  | `/services`         | List published services and their packages |
 | `GET`  | `/projects`         | List portfolio projects                    |
+| `GET`  | `/experiences`      | List portfolio experiences                 |
 | `POST` | `/contacts`         | Submit a contact message                   |
 | `POST` | `/service-requests` | Request a service or package               |
 

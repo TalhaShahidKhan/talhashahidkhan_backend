@@ -9,5 +9,6 @@ import { MailService } from './mail.service.js';
   imports: [JwtModule.register({})],
   controllers: [AdminController],
   providers: [AdminService, AdminAuthGuard, MailService],
+  exports: [JwtModule, AdminAuthGuard],
 })
 export class AdminModule {}

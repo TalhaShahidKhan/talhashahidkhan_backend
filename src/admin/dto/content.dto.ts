@@ -2,6 +2,7 @@ import { Type } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
+  IsDate,
   IsEmail,
   IsEnum,
   IsInt,
@@ -430,4 +431,59 @@ export class CreateContactDto {
   @MinLength(10)
   @MaxLength(5000)
   message!: string;
+}
+
+export class CreateExperienceDto {
+  @IsString()
+  @MinLength(3)
+  @MaxLength(200)
+  title!: string;
+
+  @IsString()
+  @MinLength(2)
+  @MaxLength(200)
+  company!: string;
+
+  @Type(() => Date)
+  @IsDate()
+  startDate!: Date;
+
+  @Type(() => Date)
+  @IsDate()
+  endDate!: Date;
+
+  @IsString()
+  @MinLength(10)
+  @MaxLength(10000)
+  description!: string;
+}
+
+export class UpdateExperienceDto {
+  @IsOptional()
+  @IsString()
+  @MinLength(3)
+  @MaxLength(200)
+  title?: string;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(2)
+  @MaxLength(200)
+  company?: string;
+
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  startDate?: Date;
+
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  endDate?: Date;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(10)
+  @MaxLength(10000)
+  description?: string;
 }

@@ -41,6 +41,12 @@ export class PublicService {
     });
   }
 
+  async listExperiences() {
+    return this.prisma.experience.findMany({
+      orderBy: { startDate: 'desc' },
+    });
+  }
+
   async createContact(input: CreateContactDto) {
     const contact = await this.prisma.contact.create({
       data: {

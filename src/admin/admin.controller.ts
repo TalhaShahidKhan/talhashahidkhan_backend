@@ -20,11 +20,13 @@ import {
   CreateProjectDto,
   CreateServiceDto,
   CreateServicePackageDto,
+  CreateExperienceDto,
   UpdatePostDto,
   UpdateProjectDto,
   UpdateServiceDto,
   UpdateServicePackageDto,
   UpdateServiceRequestStatusDto,
+  UpdateExperienceDto,
 } from './dto/content.dto.js';
 import { LoginDto } from './dto/login.dto.js';
 import { PasswordChangeDto } from './dto/password-change.dto.js';
@@ -258,5 +260,45 @@ export class AdminController {
   @ApiOperation({ summary: 'List contact submissions' })
   findAllContacts() {
     return this.adminService.findAllContacts();
+  }
+
+  @Get('experiences')
+  @AdminOnly()
+  @ApiOperation({ summary: 'List all experiences' })
+  findAllExperiences() {
+    return this.adminService.findAllExperiences();
+  }
+
+  @Get('experiences/:id')
+  @AdminOnly()
+  @ApiOperation({ summary: 'Get an experience by ID' })
+  findExperienceById(@Param('id') id: string) {
+    return this.adminService.findExperienceById(id);
+  }
+
+  @Post('experiences')
+  @AdminOnly()
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Create an experience' })
+  createExperience(@Body() input: CreateExperienceDto) {
+    return this.adminService.createExperience(input);
+  }
+
+  @Patch('experiences/:id')
+  @AdminOnly()
+  @ApiOperation({ summary: 'Update an experience' })
+  updateExperience(
+    @Param('id') id: string,
+    @Body() input: UpdateExperienceDto,
+  ) {
+    return this.adminService.updateExperience(id, input);
+  }
+
+  @Delete('experiences/:id')
+  @AdminOnly()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete an experience' })
+  async deleteExperience(@Param('id') id: string): Promise<void> {
+    await this.adminService.deleteExperience(id);
   }
 }

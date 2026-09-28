@@ -33,6 +33,12 @@ export class PublicController {
     return this.publicService.listProjects();
   }
 
+  @Get('experiences')
+  @ApiOperation({ summary: 'List portfolio experiences' })
+  async getExperiences() {
+    return this.publicService.listExperiences();
+  }
+
   @Post('contacts')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Submit a contact message' })

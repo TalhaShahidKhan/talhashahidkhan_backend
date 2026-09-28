@@ -14,7 +14,6 @@ datasource db {
 
 enum UserRole {
   ADMIN
-  USER
 }
 
 enum PublicationStatus {
@@ -37,7 +36,7 @@ model User {
   firstName    String
   lastName     String
   password     String
-  role         UserRole          @default(USER)
+  role         UserRole          @default(ADMIN)
   sessions     AuthSession[]
   actionTokens AuthActionToken[]
   posts        Post[]
@@ -87,6 +86,20 @@ model Post {
 
   @@index([status])
   @@map("posts")
+}
+
+model Experience {
+  id          String   @id @default(cuid())
+  title       String
+  company     String
+  startDate   DateTime
+  endDate     DateTime
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([startDate, endDate])
+  @@map("experience")
 }
 
 model PostAnalytics {

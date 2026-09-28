@@ -2,6 +2,7 @@ import { Controller, Post, UseInterceptors, UploadedFile, BadRequestException } 
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from './cloudinary.service.js';
 import { ApiTags, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import { AdminOnly } from '../admin/admin-only.decorator.js';
 
 @ApiTags('upload')
 @Controller('upload')
@@ -9,6 +10,7 @@ export class CloudinaryController {
   constructor(private readonly cloudinaryService: CloudinaryService) {}
 
   @Post()
+  @AdminOnly()
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {

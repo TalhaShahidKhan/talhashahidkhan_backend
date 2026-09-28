@@ -18,11 +18,13 @@ import {
   CreateProjectDto,
   CreateServiceDto,
   CreateServicePackageDto,
+  CreateExperienceDto,
   UpdatePostDto,
   UpdateProjectDto,
   UpdateServiceDto,
   UpdateServicePackageDto,
   UpdateServiceRequestStatusDto,
+  UpdateExperienceDto,
 } from './dto/content.dto.js';
 import type { LoginDto } from './dto/login.dto.js';
 import type { PasswordChangeDto } from './dto/password-change.dto.js';
@@ -422,6 +424,57 @@ export class AdminService {
       await this.prisma.project.delete({ where: { id } });
     } catch (error) {
       this.handlePrismaError(error, 'Project');
+    }
+  }
+
+  async findAllExperiences() {
+    return this.prisma.experience.findMany({
+      orderBy: { startDate: 'desc' },
+    });
+  }
+
+  async findExperienceById(id: string) {
+    const exp = await this.prisma.experience.findUnique({
+      where: { id },
+    });
+
+    if (!exp) {
+      throw new NotFoundException('Experience not found');
+    }
+
+    return exp;
+  }
+
+  async createExperience(input: CreateExperienceDto) {
+    try {
+      return await this.prisma.experience.create({
+        data: input,
+      });
+    } catch (error) {
+      this.handlePrismaError(error, 'Experience');
+    }
+  }
+
+  async updateExperience(id: string, input: UpdateExperienceDto) {
+    await this.findExperienceById(id);
+
+    try {
+      return await this.prisma.experience.update({
+        where: { id },
+        data: input,
+      });
+    } catch (error) {
+      this.handlePrismaError(error, 'Experience');
+    }
+  }
+
+  async deleteExperience(id: string): Promise<void> {
+    await this.findExperienceById(id);
+
+    try {
+      await this.prisma.experience.delete({ where: { id } });
+    } catch (error) {
+      this.handlePrismaError(error, 'Experience');
     }
   }
 

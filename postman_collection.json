@@ -49,6 +49,11 @@
       "key": "service_request_id",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "experience_id",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -147,6 +152,18 @@
               "raw": "{{base_url}}/service-requests",
               "host": ["{{base_url}}"],
               "path": ["service-requests"]
+            }
+          }
+        },
+        {
+          "name": "GET /experiences",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/experiences",
+              "host": ["{{base_url}}"],
+              "path": ["experiences"]
             }
           }
         }
@@ -941,6 +958,112 @@
               "raw": "{{base_url}}/upload",
               "host": ["{{base_url}}"],
               "path": ["upload"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Experiences",
+      "item": [
+        {
+          "name": "GET /admin/experiences",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/experiences",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "experiences"]
+            }
+          }
+        },
+        {
+          "name": "GET /admin/experiences/:id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/experiences/{{experience_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "experiences", "{{experience_id}}"]
+            }
+          }
+        },
+        {
+          "name": "POST /admin/experiences",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Software Engineer\",\n  \"company\": \"Tech Corp\",\n  \"startDate\": \"2023-01-01T00:00:00Z\",\n  \"endDate\": \"2024-01-01T00:00:00Z\",\n  \"description\": \"Great experience.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/experiences",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "experiences"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /admin/experiences/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Senior Software Engineer\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/experiences/{{experience_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "experiences", "{{experience_id}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /admin/experiences/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/experiences/{{experience_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "experiences", "{{experience_id}}"]
             }
           }
         }
