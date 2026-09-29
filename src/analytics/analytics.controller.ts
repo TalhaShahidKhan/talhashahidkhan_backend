@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AdminOnly } from '../admin/admin-only.decorator.js';
 import { AnalyticsService } from './analytics.service.js';
@@ -11,8 +11,13 @@ export class AnalyticsController {
 
   @Get('posts')
   @ApiOperation({ summary: 'Get aggregate analytics for all posts' })
-  findPostAnalytics() {
-    return this.analyticsService.findPostAnalytics();
+  findPostAnalytics(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    const start = startDate ? new Date(startDate) : undefined;
+    const end = endDate ? new Date(endDate) : undefined;
+    return this.analyticsService.findPostAnalytics(start, end);
   }
 
   @Get('posts/:postId')
@@ -23,7 +28,12 @@ export class AnalyticsController {
 
   @Get('pages')
   @ApiOperation({ summary: 'Get aggregate page-visit analytics' })
-  findPageAnalytics() {
-    return this.analyticsService.findPageAnalytics();
+  findPageAnalytics(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    const start = startDate ? new Date(startDate) : undefined;
+    const end = endDate ? new Date(endDate) : undefined;
+    return this.analyticsService.findPageAnalytics(start, end);
   }
 }
