@@ -8,6 +8,7 @@ import helmet from 'helmet';
 import { AppModule } from './app.module.js';
 
 const server = express();
+server.set('trust proxy', 1);
 let bootstrapPromise: Promise<express.Express> | null = null;
 
 async function bootstrap(): Promise<express.Express> {
