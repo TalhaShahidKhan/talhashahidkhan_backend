@@ -1,6 +1,6 @@
-import { PrismaClient } from '../generated/prisma/client.js';
 import { PrismaPg } from '@prisma/adapter-pg';
 import 'dotenv/config';
+import { PrismaClient } from '../generated/prisma/client.js';
 
 if (!process.env.DATABASE_URL) {
   throw new Error('DATABASE_URL is required to initialize Prisma');
@@ -27,6 +27,8 @@ async function main() {
       experiences,
       contacts,
       users,
+      postAnalytics,
+      frontendPageAnalytics,
     ] = await prisma.$transaction([
       prisma.authSession.deleteMany(),
       prisma.authActionToken.deleteMany(),
@@ -39,6 +41,8 @@ async function main() {
       prisma.experience.deleteMany(),
       prisma.contact.deleteMany(),
       prisma.user.deleteMany(),
+      prisma.postAnalytics.deleteMany(),
+      prisma.frontendPageAnalytics.deleteMany(),
     ]);
 
     console.log('✅ Database wiped successfully!');
@@ -54,6 +58,8 @@ async function main() {
     console.log(`- Projects: ${projects.count}`);
     console.log(`- Experiences: ${experiences.count}`);
     console.log(`- Contacts: ${contacts.count}`);
+    console.log(`- Post Analytics: ${postAnalytics.count}`);
+    console.log(`- Frontend Page Analytics: ${frontendPageAnalytics.count}`);
   } catch (error) {
     console.error('❌ Failed to wipe database:', error);
     process.exit(1);

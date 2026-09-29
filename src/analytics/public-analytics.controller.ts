@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Ip,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '../common/throttler/index.js';
@@ -23,15 +24,18 @@ export class PublicAnalyticsController {
   recordPostEvent(
     @Param('postId') postId: string,
     @Body() input: RecordPostAnalyticsDto,
+    @Ip() ip: string,
   ) {
-    return this.analyticsService.recordPostEvent(postId, input.event);
+    const userIp = ip || 'unknown-ip';
+    return this.analyticsService.recordPostEvent(postId, input.event, userIp);
   }
 
   @Post('pages/visits')
   @HttpCode(HttpStatus.CREATED)
   @Throttle({ default: { limit: 30, ttl: 60000 } })
   @ApiOperation({ summary: 'Record a frontend page visit' })
-  recordPageVisit(@Body() input: RecordPageVisitDto) {
-    return this.analyticsService.recordPageVisit(input);
+  recordPageVisit(@Body() input: RecordPageVisitDto, @Ip() ip: string) {
+    const userIp = ip || 'unknown-ip';
+    return this.analyticsService.recordPageVisit(input, userIp);
   }
 }

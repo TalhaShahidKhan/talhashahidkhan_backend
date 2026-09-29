@@ -106,12 +106,14 @@ model PostAnalytics {
   id        String   @id @default(cuid())
   postId    String
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  ipAddress String
   views     Int      @default(0)
   shares    Int      @default(0)
   clicks    Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([postId, ipAddress])
   @@index([postId])
   @@map("post_analytics")
 }
@@ -228,10 +230,12 @@ model FrontendPageAnalytics {
   id         String   @id @default(cuid())
   route      String
   pageUrl    String
+  ipAddress  String
   visitCount Int      @default(0)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
+  @@unique([route, ipAddress])
   @@index([pageUrl])
   @@map("frontend_page_analytics")
 }

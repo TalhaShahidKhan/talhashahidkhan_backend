@@ -51,7 +51,7 @@ export class AnalyticsService {
     };
   }
 
-  async recordPostEvent(postId: string, event: PostAnalyticsEvent) {
+  async recordPostEvent(postId: string, event: PostAnalyticsEvent, ip: string) {
     const post = await this.prisma.post.findUnique({
       where: { id: postId },
       select: { id: true },
@@ -60,12 +60,23 @@ export class AnalyticsService {
       throw new NotFoundException('Post not found');
     }
 
-    return this.prisma.postAnalytics.create({
-      data: {
+    const isView = event === PostAnalyticsEvent.VIEW ? 1 : 0;
+    const isShare = event === PostAnalyticsEvent.SHARE ? 1 : 0;
+    const isClick = event === PostAnalyticsEvent.CLICK ? 1 : 0;
+
+    return this.prisma.postAnalytics.upsert({
+      where: { postId_ipAddress: { postId, ipAddress: ip } },
+      update: {
+        views: { increment: isView },
+        shares: { increment: isShare },
+        clicks: { increment: isClick },
+      },
+      create: {
         postId,
-        views: event === PostAnalyticsEvent.VIEW ? 1 : 0,
-        shares: event === PostAnalyticsEvent.SHARE ? 1 : 0,
-        clicks: event === PostAnalyticsEvent.CLICK ? 1 : 0,
+        ipAddress: ip,
+        views: isView,
+        shares: isShare,
+        clicks: isClick,
       },
     });
   }
@@ -84,9 +95,11 @@ export class AnalyticsService {
     }));
   }
 
-  recordPageVisit(input: RecordPageVisitDto) {
-    return this.prisma.frontendPageAnalytics.create({
-      data: { route: input.route, pageUrl: input.pageUrl, visitCount: 1 },
+  recordPageVisit(input: RecordPageVisitDto, ip: string) {
+    return this.prisma.frontendPageAnalytics.upsert({
+      where: { route_ipAddress: { route: input.route, ipAddress: ip } },
+      update: { visitCount: { increment: 1 }, pageUrl: input.pageUrl },
+      create: { route: input.route, pageUrl: input.pageUrl, ipAddress: ip, visitCount: 1 },
     });
   }
 }
